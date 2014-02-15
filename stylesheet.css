@@ -1,0 +1,218 @@
+*:not(#artwork) { 
+	-moz-box-sizing: border-box; 
+	-webkit-box-sizing: border-box; 
+	box-sizing: border-box;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+}
+
+body {
+	background-color: #000;
+	font-family: 'Monosten-A', monaco, monospace;
+	color: #fff;
+	font-size: 60px;
+	line-height: 1.5;
+	text-transform: uppercase;
+	-webkit-font-smoothing: antialiased;
+}
+
+.content {
+	opacity: 1;
+	-webkit-transition: opacity 500ms ease;
+	-moz-transition: opacity 500ms ease;
+	transition: opacity 500ms ease;
+}
+
+html[data-loading] .content {
+	opacity: 0;
+}
+
+/**
+ * Refresh
+ */
+
+#refresh {
+	background: #fff;
+	cursor: pointer;
+	position: fixed;
+	top: 0;
+	right: 0;
+	height: 50px;
+	width: 50px;
+	z-index: 99;
+}
+
+/**
+ * Content
+ */
+
+#currently {
+	padding: 3% 10% 3% 3%;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 50%;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.section {
+	padding: 2%;
+}
+
+.section .options {
+	font-size: 0.5em;
+}
+
+.section .option {
+	margin-left: 0.5em;
+	opacity: 0;
+	-webkit-transition: opacity 500ms ease;
+}
+
+.section:hover .option {
+	opacity: 0.25;
+	cursor: pointer;
+	padding-bottom: 0.1em;
+	border-bottom: 0.1em solid #fff;
+}
+
+.section:hover .option:hover {
+	opacity: 1;
+	-moz-animation: blink 150ms steps(1, end) infinite;
+	-webkit-animation: blink 150ms steps(1, end) infinite;
+}
+
+.section .currently {
+	color: #fff;
+}
+
+.section .currently a {
+	color: #fff;
+	text-decoration: none;
+	padding-bottom: 0.1em;
+	border-bottom: 0.09em solid #fff;
+}
+
+.section .currently a:hover {
+  -moz-animation: blink 150ms steps(1, end) infinite;
+  -webkit-animation: blink 150ms steps(1, end) infinite;
+}
+
+.section .title {
+	opacity: 0.25;
+	-webkit-transition: opacity 500ms ease;
+}
+
+.section:hover .title {
+	opacity: 1;
+}
+ 
+@-moz-keyframes blink {
+  0% { border-bottom-color: transparent; }
+  50% { border-bottom-color: #fff; }
+}
+ 
+@-webkit-keyframes blink {
+  0% { border-bottom-color: transparent; }
+  50% { border-bottom-color: #fff; }
+}
+
+iframe {
+	height: 0px;
+	width: 0px;
+}
+
+#artwork {
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+	position: fixed;
+	top: -15%;
+	left: -15%;
+	right: -15%;
+	bottom: -15%;
+	z-index: -1;
+	opacity: 0.2;
+	-webkit-filter: grayscale(100%) blur(30px);
+}
+
+/**
+ * Meta
+ */
+
+#meta {
+	background: #fff;
+	color: #000;
+	padding: 3%;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 50%;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+
+	-webkit-transition: opacity 500ms ease;
+	-moz-transition: opacity 500ms ease;
+	transition: opacity 500ms ease;
+}
+
+#active_stream {
+	border: 0;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	color: #000;
+	outline: 0;
+	background: #fff;
+	margin: 0;
+	-webkit-font-smoothing: antialiased;
+}
+
+#active_stream:before {
+	position: absolute;
+	top: -1px;
+	left: 0;
+	right: 0;
+	height: 1px;
+	background: rgba(0, 0, 0, 0.13);
+}
+
+#active_stream input {
+	display: block;
+	padding: 2% 5% 2% 10%;
+	width: 100%;
+	font-family: 'Monosten-A', monaco, monospace;
+	color: #000;
+	font-size: 60px;
+	line-height: 1.5;
+	text-transform: uppercase;
+	outline: 0;
+	background: #fff;
+	margin: 0;
+	-webkit-font-smoothing: antialiased;
+}
+
+.slashy {
+	background: red;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 9;
+}
