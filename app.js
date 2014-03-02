@@ -19,6 +19,7 @@ app.api = {
 	// Cache
 	user     : { },
 	likes    : [ ],
+	current  : { },
 	listened : [ ],
 
 	getUser : function() {
@@ -59,7 +60,12 @@ app.api = {
 				data.offset = offset;
 				app.api.getLikes();
 			} else {
-				$(document).trigger('likesReady');
+				if ( likes.length > 0 ) {
+					$(document).trigger('likesReady');
+				} else {
+					alert('none');
+					$('html').removeAttr('data-loading');
+				}
 			}
 
 		});
@@ -69,6 +75,16 @@ app.api = {
 	getRandomLike : function() {
 		var like = app.api.likes[Math.floor(Math.random() * app.api.likes.length)];
 		return like;
+	},
+
+	reset : function() {
+
+		this.user     = { };
+		this.likes    = [ ];
+		this.listened = [ ];
+
+		$('html').attr('data-loading', '');
+
 	},
 
 	setup : function() {
@@ -117,14 +133,28 @@ app.sound = {
 
 			// Update the interface
 			$('html').removeAttr('data-loading');
-			$('#favorite .currently').html('<a href="' + user.permalink_url + '" target="_blank">' + user.username + '</a>');
+			$('#stream .currently').html('<a href="' + user.permalink_url + '" target="_blank">' + user.username + '</a>');
 			$('#artist .currently').html('<a href="' + like.user.permalink_url + '" target="_blank">' + like.user.username + '</a>');
 			$('#track .currently').html('<a href="' + like.permalink_url + '" target="_blank">' + like.title + '</a>');
+			$('#artwork').css('background-image', 'url(' + artwork + ')');
 
 		});
 
-		// console.log(like);
+		// Update the data
+		app.api.current = like;
 
+	},
+
+	play : function() {
+		alert('play');
+	},
+
+	pause : function() {
+		alert('pause');
+	},
+
+	toggle : function() {
+		app.sound.player.toggle();
 	},
 
 	interface : function() {
@@ -132,6 +162,16 @@ app.sound = {
 		$('#refresh').click(function() {
 			app.sound.makeRandom();
 		}).click();
+
+		$('#playpause').click(function() {
+			app.sound.toggle();
+		});
+
+		$("#switch").click(function() {
+			app.api.data.uid = app.api.current.user.id;
+			app.api.reset();
+			app.api.getUser();
+		});
 
 	},
 
@@ -141,16 +181,16 @@ app.sound = {
 		app.sound.$embed = $('iframe');
 		app.sound.player = SC.Widget(app.sound.$embed[0]);
 
-		// Bind events to the player
-		app.sound.player.bind(SC.Widget.Events.READY, function() {
+	    app.sound.player.bind(SC.Widget.Events.FINISH, function() {
+	        app.sound.makeRandom();
+	    });
 
-			app.sound.player.play();
-			app.sound.player.setVolume(100);
+	    app.sound.player.bind(SC.Widget.Events.PLAY, function() {
+	        app.sound.play();
+	    });
 
-			app.sound.player.bind(SC.Widget.Events.FINISH, function() {
-		        app.sound.makeRandom();
-		    });
-
+	    app.sound.player.bind(SC.Widget.Events.PAUSE, function() {
+	        app.sound.pause();
 	    });
 
 		// Setup the interface
@@ -160,26 +200,63 @@ app.sound = {
 
 };
 
-app.typography = {
+app.resize = {
+
+	$el : {
+
+	},
+
+	setCache : function() {
+		this.$el.window = $(window);
+		this.$el.navigation = $('#navigation');
+		this.$el.drop_link = $('.drop_link');
+
+	},
 
 	setFontSize : function() {
 
-		var fontSize = Math.floor($(window).width() / 25);
+		var winWidth = this.$el.window.width();
+		var fontSize = Math.floor(winWidth / 40);
 
-		if ( fontSize < 8 ) {
-			fontSize = 8;
+		if ( fontSize < 18 ) {
+			fontSize = 18;
 		} else if ( fontSize > 40 ) {
 			fontSize = 40;
 		}
 
-		$('body, #active_stream input').css({
-	    	'font-size' : fontSize + 'px'
-	    });
+		// Font size
+		vein.inject('body, #navigation input', {
+			'font-size' : fontSize + 'px'
+		});
 
 	},
 
+	setNavPad : function() {
+
+		var height  = this.getPercentage(0.05);
+
+		vein.inject('#toolbar > div', {
+			'height'  : height + 'px',
+			'width'   : height + 'px'
+		});
+
+	},
+
+	getPercentage : function(percent) {
+		return Math.floor(this.$el.window.width() * percent);
+	},
+
 	setup : function() {
-		$(window).on('resize', this.setFontSize).resize();
+
+		var self = this;
+
+		self.setCache();
+
+		$(window).on('resize', function() {
+			self.setFontSize();
+			self.setNavPad();
+		}).resize();
+
 	}
 
 };

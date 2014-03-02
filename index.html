@@ -6,56 +6,51 @@
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 	<script src="http://connect.soundcloud.com/sdk.js"></script>
 	<script src="https://w.soundcloud.com/player/api.js" type="text/javascript"></script>
+	<script src="vein.js"></script>
 	<script src="app.js"></script>
 	<link rel="stylesheet" href="stylesheet.css">
 </head>
 <body>
 
-	<div id="refresh"></div>
-
 	<div id="currently">
 
-		<div class="content">
-
-			<div id="artist" class="section">
-				<div class="options">
-					<span class="title">artist</span>
-				</div>
-				<div class="currently"></div>
+	<div id="stream" class="section">
+			<div class="options">
+				<span class="title">user</span>
 			</div>
-
-			<div id="track" class="section">
-				<div class="options">
-					<span class="title">track</span>
-				</div>
-				<div class="currently"></div>
-			</div>
-
-			<div id="artwork"></div>
-
+			<div class="currently"></div>
 		</div>
+
+		<div id="artist" class="section">
+			<div class="options">
+				<span class="title">artist</span>
+			</div>
+			<div id="switch">switch</div>
+			<div class="currently"></div>
+		</div>
+
+		<div id="track" class="section">
+			<div class="options">
+				<span class="title">track</span>
+			</div>
+			<div class="currently"></div>
+		</div>
+
+		<div id="artwork"></div>
 
 		<div id="player">
-			<iframe width="100%" height="100%" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/134828539&amp;auto_play=false&amp;hide_related=false&amp;visual=true"></iframe>
+			<iframe width="100%" height="100%" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/"></iframe>
 		</div>
 			
+	</div>
+
+	<div id="toolbar">
+		<div id="playpause">
+			&#9654;
 		</div>
-
-	<div id="meta">
-
-		<div class="content">
-			
-			<div class="section">
-				testing
-			</div>
-
+		<div id="refresh">
+			&#9852;
 		</div>
-		
-		<div id="active_stream">
-			<div class="slashy">/</div>
-			<input type="text" id="active_stream"></input>
-		</div>
-
 	</div>
 
 </body>
