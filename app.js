@@ -1,201 +1,119 @@
+// Namespace
 var app = app || { };
 
-/**
- * API handles everything with SoundCloud
- * @type {Object}
- */
-app.api = {
+var test;
 
-	// Notes
-	// Pagination: &limit=1000&offset=20
+/**
+ * Core contains the essentials
+ */
+app.core = {
 
 	data : {
-		uid   : '2614244',
-		key   : 'b4aede257e54e309f8806921476260e6',
-		limit : 100,
-		offset: 0
-	},
-
-	// Cache
-	user     : { },
-	likes    : [ ],
-	current  : { },
-	listened : [ ],
-
-	getUser : function() {
-
-		var data = app.api.data;
-
-		$.ajax({
-			url : 'http://api.soundcloud.com/users/' + data.uid + '.json?client_id=' + data.key
-		})
-		.done(function(result) {
-			app.api.user = result;
-			$(document).trigger('userReady');
-		});
-
-	},
-
-	getLikes : function() {
-
-		var data  = app.api.data;
-		var likes = app.api.likes;
-
-		// Make the request
-		$.ajax({
-			url : 'http://api.soundcloud.com/users/' + data.uid + '/favorites.json?client_id=' + data.key + '&limit=' + data.limit + '&offset=' + data.offset,
-		})
-		.done(function(result) {
-
-			var offset = data.offset + data.limit;
-
-			// Add each like to the object
-			for (var i = result.length - 1; i >= 0; i--) {
-				var like = result[i];
-				likes.push(like);
-			};
-
-			// Loop again if there are still likes
-			if ( result.length == data.limit ) {
-				data.offset = offset;
-				app.api.getLikes();
-			} else {
-				if ( likes.length > 0 ) {
-					$(document).trigger('likesReady');
-				} else {
-					alert('none');
-					$('html').removeAttr('data-loading');
-				}
-			}
-
-		});
-
-	},
-
-	getRandomLike : function() {
-		var like = app.api.likes[Math.floor(Math.random() * app.api.likes.length)];
-		return like;
-	},
-
-	reset : function() {
-
-		this.user     = { };
-		this.likes    = [ ];
-		this.listened = [ ];
-
-		$('html').attr('data-loading', '');
-
+		limit : 50
 	},
 
 	setup : function() {
 
-		// Init
-		this.getUser();
+		this.soundcloud();
+		this.soundmanager();
+		this.startStream();
 
-		// Chain
-		$(document).on('userReady', this.getLikes);
+	},
+
+	soundcloud : function() {
+		SC.initialize({
+			client_id: app.config.key,
+			redirect_uri: "http://example.com/callback.html",
+		});
+	},
+
+	soundmanager : function() {
+		soundManager.setup({
+			url: '/_libraries/soundmanager/swf/',
+			flashVersion: 9, // optional: shiny features (default = 8)
+			preferFlash: false,
+
+			defaultOptions: {
+			    // set global default volume for all sound objects
+			    // volume: 0
+			}
+		});
+	},
+
+	startStream : function() {
+
+		test = app.stream({
+
+			'uid'  : 2614244,
+			'limit': this.data.limit,
+
+			trackReady : function() {
+				app.core.updateInterface(test.data);
+				app.loading.hide();
+			},
+			trackFinish : function() {
+				app.loading.show();
+				test.playRandomTrack();
+			}
+
+		});
+
+		test.setup();
+
+		$('#refresh').on('click', function() {
+			app.loading.show();
+			test.playRandomTrack();
+		});
+
+	},
+
+	updateInterface : function(data) {
+
+		var user  = data.activeUser;
+		var track = data.activeTrack;
+
+		var artwork = track.artwork_url || track.user.avatar_url;
+		
+		$('#stream .currently').html('<a href="' + user.permalink_url + '" target="_blank">' + user.username + '</a>');
+		$('#artist .currently').html('<a href="' + track.user.permalink_url + '" target="_blank">' + track.user.username + '</a>');
+		$('#track .currently').html('<a href="' + track.permalink_url + '" target="_blank">' + track.title + '</a>');
+		$('#artwork').css('background-image', 'url(' + artwork + ')');
 
 	}
 
 };
 
-/**
- * Interface
- */
-app.sound = {
+app.loading = {
 
-	$embed : '',
-	player : '',
+	characters : ['&#9786;', '&#9786;', '&#9787;', '&#9785;', '&#9788;', '&#9730;', '&#9731;', '&#9883;', '&#9990;', '&#63743;', '&#8984;', '&#8679;', '&#10017;', '&#9773;', '&#9756;', '&#9758;', '&#9757;', '&#9759;', '&#9996;', '&#10004;', '&#9733;', '&#9850;', '&#9992;', '&hearts;', '&#9834;', '&#9835;', '&#9836;', '&#9792;', '&#9794;', '&#9890;', '&#9891;', '&#10006;', '&infin;', '&yen;', '&euro;', '&#36;', '&cent;', '&pound;', '&copy;', '&reg;', '&#64;'],
+	loop       : null,
+	$el        : null,
 
-	allofem : function() {
-		for (var i = app.api.likes.length - 1; i >= 0; i--) {
-			console.log(i, app.api.likes[i].title);
-		};
+	randomCharacter : function() {
+		var character = this.characters[Math.floor(Math.random() * this.characters.length)];
+		this.$el.html(character);
 	},
 
-	makeRandom : function() {
+	show : function() {
 
-		var like    = app.api.getRandomLike();
-		var user    = app.api.user;
-		var artwork = like.artwork_url || like.user.avatar_url;
+		var self = this;
 
-		// Loading
 		$('html').attr('data-loading', '');
 
-		// Load the new sound
-		app.sound.player.load(like.permalink_url);
-
-		// Play the sound
-		app.sound.player.bind(SC.Widget.Events.READY, function() {
-
-			app.sound.player.play();
-			app.sound.player.setVolume(100);
-
-			// Update the interface
-			$('html').removeAttr('data-loading');
-			$('#stream .currently').html('<a href="' + user.permalink_url + '" target="_blank">' + user.username + '</a>');
-			$('#artist .currently').html('<a href="' + like.user.permalink_url + '" target="_blank">' + like.user.username + '</a>');
-			$('#track .currently').html('<a href="' + like.permalink_url + '" target="_blank">' + like.title + '</a>');
-			$('#artwork').css('background-image', 'url(' + artwork + ')');
-
-		});
-
-		// Update the data
-		app.api.current = like;
+		this.loop = setInterval(function() {
+			self.randomCharacter();
+		}, 50);
 
 	},
 
-	play : function() {
-		alert('play');
-	},
-
-	pause : function() {
-		alert('pause');
-	},
-
-	toggle : function() {
-		app.sound.player.toggle();
-	},
-
-	interface : function() {
-
-		$('#refresh').click(function() {
-			app.sound.makeRandom();
-		}).click();
-
-		$('#playpause').click(function() {
-			app.sound.toggle();
-		});
-
-		$("#switch").click(function() {
-			app.api.data.uid = app.api.current.user.id;
-			app.api.reset();
-			app.api.getUser();
-		});
-
+	hide : function() {
+		$('html').removeAttr('data-loading');
+		clearInterval(this.loop);
 	},
 
 	setup : function() {
-
-		// Cache
-		app.sound.$embed = $('iframe');
-		app.sound.player = SC.Widget(app.sound.$embed[0]);
-
-	    app.sound.player.bind(SC.Widget.Events.FINISH, function() {
-	        app.sound.makeRandom();
-	    });
-
-	    app.sound.player.bind(SC.Widget.Events.PLAY, function() {
-	        app.sound.play();
-	    });
-
-	    app.sound.player.bind(SC.Widget.Events.PAUSE, function() {
-	        app.sound.pause();
-	    });
-
-		// Setup the interface
-		$(document).on('likesReady', this.interface);
-
+		this.$el = $('#loading');
+		this.show();
 	}
 
 };
@@ -233,11 +151,32 @@ app.resize = {
 
 	setNavPad : function() {
 
-		var height  = this.getPercentage(0.05);
+		var height = this.getPercentage(0.05);
+		var width  = this.getPercentage(0.7);
+		var line   = this.getPercentage(0.002);
+
+		if ( line < 1 ) {
+			line = 1;
+		}
+
+		vein.inject('.currently', {
+			'max-width' : width + 'px'
+		});
 
 		vein.inject('#toolbar > div', {
 			'height'  : height + 'px',
 			'width'   : height + 'px'
+		});
+
+		vein.inject('.option_line', {
+			'margin-left'   : line * 4 + 'px',
+			'height'        : line + 'px',
+			'border-radius' : line / 2 + 'px'
+		});
+
+		$('.section').each(function() {
+			var offset = $(this).find('.options .title').width();
+			$(this).find('.option_line').css('left', offset);
 		});
 
 	},
@@ -263,9 +202,11 @@ app.resize = {
 
 // Initialize modules
 $(function() {
+
 	for (var key in app) {
 		if ( app[key].setup !== undefined ) {
 			app[key].setup();
 		}
 	}
+
 });

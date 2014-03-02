@@ -21,6 +21,24 @@ body {
 	-webkit-font-smoothing: antialiased;
 }
 
+#loading {
+	display: none;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	pointer-events: none;
+	font-size: 5em;
+	z-index: 9;
+
+	-webkit-transform: translate(-50%, -50%);
+	-moz-transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);
+}
+
+html[data-loading] #loading {
+	display: block;
+}
+
 /**
  * Content
  */
@@ -31,7 +49,7 @@ body {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	padding: 10% 30% 10% 10%;
+	padding: 10%;
 	opacity: 1;
 
 	-webkit-transition: opacity 500ms ease;
@@ -51,7 +69,9 @@ html[data-loading] #currently {
 }
 
 .section {
+	float: left;
 	padding: 2%;
+	white-space: nowrap;
 }
 
 html[data-loading] .section {
@@ -60,42 +80,54 @@ html[data-loading] .section {
 
 .section .options {
 	font-size: 0.5em;
+	position: relative;
 }
 
 .section .currently {
 	color: #fff;
+	text-overflow: ellipsis;
+	overflow: hidden;
 }
 
 .section .currently a {
 	color: #fff;
 	text-decoration: none;
-	padding-bottom: 0.1em;
-	border-bottom: 0.09em solid #fff;
 }
 
 .section .currently a:hover {
-  -moz-animation: blink 150ms steps(1, end) infinite;
-  -webkit-animation: blink 150ms steps(1, end) infinite;
+	-moz-animation: blink 150ms steps(1, end) infinite;
+	-webkit-animation: blink 150ms steps(1, end) infinite;
 }
 
 .section .title {
-	opacity: 0.25;
+
+}
+
+.section .option_line {
+	background: #fff;
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 45%;
+	-webkit-transform: translateY(-50%);
+	-moz-transform: translateY(-50%);
+	transform: translateY(-50%);
 }
 
 #switch {
-	display: inline-block;
+	display: none;
 	color: #666;
 	cursor: pointer;
 }
  
 @-moz-keyframes blink {
-  0% { border-bottom-color: transparent; }
-  50% { border-bottom-color: #fff; }
+  0% { opacity: 0; }
+  50% { opacity: 1; }
 }
  
 @-webkit-keyframes blink {
-  0% { border-bottom-color: transparent; }
-  50% { border-bottom-color: #fff; }
+  0% { opacity: 0; }
+  50% { opacity: 1; }
 }
 
 iframe {
