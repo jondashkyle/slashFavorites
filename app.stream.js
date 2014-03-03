@@ -17,7 +17,9 @@ app.stream = function(options) {
             'limit' : 50,
 
             // Plugin callbacks
-            onReady : function() { },
+            onReady   : function() { },
+            userReady : function() { },
+            noTracks  : function() { },
 
             // Track callbacks
             trackConnect : function() { },
@@ -44,28 +46,62 @@ app.stream = function(options) {
 			// Events
 			$(events)
 				// Initialize
-				.on('userReady', self.setFavorites)
-				// Methods
-				.on('playTrack', self.playTrack)
-				// Track events
+				.on('userReady', self.userReady)
+				.on('streamTrack', self.streamTrack)
 				.on('trackConnect', self.trackConnect)
 				.on('trackReady', self.trackReady)
 				.on('trackPause', self.trackPause)
 				.on('trackPlay', self.trackPlay)
 				.on('trackFinish', self.trackFinish)
-				// Start by playing a random track
-				.on('favoritesReady', self.playRandomTrack);
+				.on('favoritesReady', self.favoritesReady)
+				.on('noTracks', self.noTracks);
 
 			// Start
 			self.setUser();
 
 		},
 
+		/**
+		 * TODO : CLEAN THIS UP W/ FADEOUT
+		 */
+		disable : function() {
+			
+			var volume = 100,
+				fade;
+
+			fade = setInterval(function() {
+
+				volume -= 5;
+
+				if ( volume > 1 ) {
+					self.sound.setVolume(volume);
+				} else {
+					self.sound.setVolume(0);
+					self.sound.destruct();
+					clearInterval(fade);
+				}
+
+			}, 50);
+
+		},
+
 		setUser : function() {
-			SC.get('/users/' + self.options.uid, function(user){
-				self.data.activeUser = user;
-				$(events).trigger('userReady');
+			SC.get('/users/' + self.options.uid, function(user) {
+
+				// Make sure we have some favorites
+				if ( user.public_favorites_count > 2 ) {
+					self.data.activeUser = user;
+					$(events).trigger('userReady');
+					self.options.userReady();
+				} else {
+					$(events).trigger('noTracks');
+				}
+
 			});
+		},
+
+		userReady : function() {
+			self.setFavorites();
 		},
 
 		setFavorites : function() {
@@ -83,19 +119,60 @@ app.stream = function(options) {
 				if ( self.favorites.length > (self.data.activeUser.public_favorites_count - self.options.limit) ) {
 					$(events).trigger('favoritesReady');
 				} else {
+
+					// Update the offset
 					self.data.offset = self.data.offset + self.options.limit;
-					self.setFavorites();
+
+					// Rate limiting
+					if (self.data.offset > 200 ) {
+						$(events).trigger('favoritesReady');
+						setTimeout(self.setFavorites, 1000);
+					} else {
+						self.setFavorites();
+					}
+
 				}
 
 			});
 		},
 
-		playRandomTrack : function() {
-			self.data.activeTrack = self.getRandomFavorite();
-			$(events).trigger('playTrack');
+		streamRandomTrack : function() {
+
+			var track = self.getRandomFavorite();
+
+			// Check against the history
+			if ( self.favorites.length > 0 ) {
+
+				// Try again if we got the same track
+				if ( track.id == self.data.activeTrack.id ) {
+					self.streamRandomTrack();
+					return false;
+				}
+
+				// Add to history
+				self.history.push(track);
+
+				// Remove from favorites
+				for (var i = self.favorites.length - 1; i >= 0; i--) {
+					if (self.favorites[i].id === track.id) {
+				    	self.favorites.splice(i,1);
+				    	break;
+					}
+				};
+
+				// Set it as the active track
+				self.data.activeTrack = track;
+
+			} else {
+				self.favorites = self.history;
+				self.history   = [ ];
+			}
+
+			$(events).trigger('streamTrack');
+
 		},
 
-		playTrack : function() {
+		streamTrack : function() {
 
 			// Destruct and fade out previous sound
 			if ( ! $.isEmptyObject(self.sound) ) {
@@ -114,6 +191,14 @@ app.stream = function(options) {
 		},
 
 		openStream : function() {
+
+			// Set the Artist's favorite count
+			SC.get('/users/' + self.data.activeTrack.user.id, function(user) {
+				if ( user.public_favorites_count > 2 ) {
+					self.data.activeTrack.user.public_favorites_count = user.public_favorites_count;
+				}
+			});
+
 			// Open the new stream
 			SC.stream('/tracks/' + self.data.activeTrack.id, {
 				onconnect : function() {
@@ -123,6 +208,9 @@ app.stream = function(options) {
 					$(events).trigger('trackReady');
 				},
 				onplay : function() {
+					$(events).trigger('trackPlay');
+				},
+				onresume : function() {
 					$(events).trigger('trackPlay');
 				},
 				onpause : function() {
@@ -135,6 +223,11 @@ app.stream = function(options) {
 				self.sound = sound;
 				self.sound.play();
 			});
+
+		},
+
+		togglePause : function() {
+			self.sound.togglePause();
 		},
 
 		fadeOut : function() {
@@ -150,12 +243,18 @@ app.stream = function(options) {
 					self.sound.setVolume(volume);
 				} else {
 					self.sound.setVolume(0);
+					self.sound.destruct();
 					$(events).trigger('fadeOutComplete');
 					clearInterval(fade);
 				}
 
 			}, 50);
 
+		},
+
+		favoritesReady : function() {
+			self.streamRandomTrack();
+			$(events).off('favoritesReady');
 		},
 
 		trackConnect : function() {
@@ -175,12 +274,11 @@ app.stream = function(options) {
 		},
 
 		trackFinish : function() {
-			// - Add to history
-			// - Play new track
-
-			// Callbacks
 			self.options.trackFinish();
+		},
 
+		noTracks : function() {
+			self.options.noTracks();
 		},
 
 		getRandomFavorite : function() {
@@ -200,8 +298,10 @@ app.stream = function(options) {
 		history   : self.history,
 
 		// Public methods
-		setup           : self.setup,
-		playRandomTrack : self.playRandomTrack
+		setup             : self.setup,
+		disable           : self.disable,
+		streamRandomTrack : self.streamRandomTrack,
+		togglePause       : self.togglePause
 
 	}
 
