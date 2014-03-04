@@ -21,7 +21,9 @@ app.core = {
 
 		this.soundcloud();
 		this.soundmanager();
+		this.mobile();
 
+		// Poor man's history
 		$(window).hashchange( function() {
 
 			var hash = location.hash.replace('#', '');
@@ -136,6 +138,12 @@ app.core = {
 				app.ui.noTracks();
 			}
 		});
+	},
+
+	mobile : function() {
+		if( /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) ) {
+		   alert("Not yet mobile optimized. Goodluck.")
+		}
 	}
 
 };
@@ -433,9 +441,25 @@ app.shortcuts = {
 
 	setup : function() {
 		$(document).on('keydown', function(event) {
-			if ( ! $('html').is('[data-browsing]') ) {
+
+			var key = event.which;
+
+			if ( ! $('html').is('[data-initializing]') && ! $('#browse_search input').is(":focus") ) {
 				app.shortcuts.events(event);
 			}
+
+			if ( key == 39 ) {
+				app.loading.show();
+				app.streams[app.streams.length - 1].streamRandomTrack();
+				event.preventDefault();
+
+			// Swap by up arrow
+			} else if ( key == 38 ) {
+				app.loading.show();
+				app.core.setURL(app.streams[app.streams.length - 1].data.activeTrack.user.permalink);
+				event.preventDefault();
+			}
+
 		});
 	},
 
@@ -448,15 +472,9 @@ app.shortcuts = {
 			event.preventDefault();
 
 		// Skip by left arrow
-		} else if ( key == 39 || key == 82 ) {
+		} else if ( key == 82 ) {
 			app.loading.show();
 			app.streams[app.streams.length - 1].streamRandomTrack();
-			event.preventDefault();
-
-		// Swap by up arrow
-		} else if ( key == 38 ) {
-			app.loading.show();
-			app.core.setURL(app.streams[app.streams.length - 1].data.activeTrack.user.permalink);
 			event.preventDefault();
 		}
 	}
