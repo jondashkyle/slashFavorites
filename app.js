@@ -49,8 +49,9 @@ app.core = {
 		soundManager.setup({
 			url: '/_libraries/soundmanager/swf/',
 			flashVersion: 9, // optional: shiny features (default = 8)
-			preferFlash: false,
-			debugMode : false,
+			preferFlash: true,
+			useHighPerformance : true,
+			debugMode : true,
 
 			defaultOptions: {
 			    // set global default volume for all sound objects
@@ -81,11 +82,8 @@ app.core = {
 			trackReady : function() {
 				app.loading.initialized();
 				app.ui.updateTrack(stream.data.activeTrack);
-				// Give the image some time to load
-				setTimeout(function() {
-					$('html').attr('data-streaming', '');
-					app.loading.hide();
-				}, 200);
+				$('html').attr('data-streaming', '');
+				app.loading.hide();
 			},
 			trackPlay : function() {
 				$('.playpause').text('pause');
@@ -175,27 +173,67 @@ app.ui = {
 			.html('<a href="' + user.permalink_url + '" target="_blank">' + user.username + '</a> (' + user.public_favorites_count +')');
 	},
 
-	updateTrack : function(track) {
+	updateTrack : function(track) {	
 
 		var artist_favorites_count = track.user.public_favorites_count;
 
-		if ( artist_favorites_count > 2 ) {
-			$('#artist .currently').html('<a href="' + track.user.permalink_url + '" target="_blank">' + track.user.username + '</a> (<a class="swap" data-swap>' + track.user.public_favorites_count + '</a>)');
-		} else {
-			$('#artist .currently').html('<a href="' + track.user.permalink_url + '" target="_blank">' + track.user.username + '</a> (0)');
-		
-		}
-		
+		$('#artist .currently').html('<a href="' + track.user.permalink_url + '" target="_blank">' + track.user.username + '</a> (<a class="swap" data-swap>0</a>)');
 		$('#track .currently').html('<a href="' + track.permalink_url + '" target="_blank">' + track.title + '</a>');
-		$('#artwork').css('background-image', 'url(' + (track.artwork_url || track.user.avatar_url) + ')');
+		// $('#artwork image').attr('xlink:href', (track.artwork_url || track.user.avatar_url));
+
+		if ( artist_favorites_count > 2 ) {
+
+			var favlength = artist_favorites_count.toString().length;
+
+			var fillVoid = function(number) {
+				var space = favlength - number.toString().length;
+				var ether = '';
+				for (var i = space - 1; i >= 0; i--) {
+					ether = ether + '0';
+				};
+				ether = ether + number;
+				return ether;
+			};
+
+			var $count   = $('#artist .currently .swap');
+			var duration = artist_favorites_count * 20;
+			var placeholder;
+
+			if ( duration > 1500 ) {
+				duration = 1500;
+			} else if ( duration < 500 ) {
+				duration = 500;
+			}
+
+			$({count: 0}).animate({ count : artist_favorites_count }, {
+				duration: duration,
+				easing  : 'easeInOutCubic',
+			    step : function() {
+			        $count.text( fillVoid(Math.floor(this.count)) );
+			    },
+			    complete: function() {
+			    	$count.text(artist_favorites_count);
+			    }
+			});
+
+		}
 
 	},
 
 	noTracks : function() {
+
 		$('html').attr('data-notracks', '');
 		setTimeout(function() {
 			app.loading.hide();
 		}, 100);
+
+		if ( $('html').is('[data-initializing]') ) {
+			setTimeout(function() {
+				$('html').removeAttr('data-notracks');
+				app.browsing.show();
+			}, 2000);
+		}
+
 	}
 
 };
@@ -307,6 +345,18 @@ app.resize = {
 			'font-size' : fontSize + 'px'
 		});
 
+		var svgsize;
+		var winHeight = $(window).height();
+		if ( winHeight > winWidth ) {
+			svgsize = winHeight;
+		} else {
+			svgsize = winWidth;
+		}
+
+		$('svg, svg image')
+			.attr('height', svgsize)
+			.attr('width', svgsize);
+
 	},
 
 	setNavPad : function() {
@@ -347,6 +397,10 @@ app.resize = {
 			'margin-left'   : line * 10 + 'px',
 			'height'        : line + 'px',
 			'border-radius' : line / 2 + 'px'
+		});
+
+		vein.inject('#browse_search input', {
+			'border-radius' : line * 3 + 'px'
 		});
 
 		$('.section').each(function() {
@@ -479,7 +533,11 @@ app.browsing = {
 			})
 			.on('focus', '#browse_search input', function() {
 				$(this).val('');
-			})
+			});
+
+			setTimeout(function() {
+				$('#browse_search input').focus();
+			},100);
 
 	},
 
@@ -509,3 +567,18 @@ $(function() {
 	}
 
 });
+
+/**
+ * Typography
+ */
+WebFontConfig = { fontdeck: { id: '16726' } };
+
+(function() {
+	var wf = document.createElement('script');
+	wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
+	'://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+	wf.type = 'text/javascript';
+	wf.async = 'true';
+	var s = document.getElementsByTagName('script')[0];
+	s.parentNode.insertBefore(wf, s);
+})();

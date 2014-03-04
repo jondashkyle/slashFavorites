@@ -1,4 +1,4 @@
-*:not(#artwork) { 
+* { 
 	-moz-box-sizing: border-box; 
 	-webkit-box-sizing: border-box; 
 	box-sizing: border-box;
@@ -14,12 +14,16 @@ body {
 
 body {
 	background-color: #000;
-	font-family: 'Monosten-A', monaco, monospace;
+	font-family: 'Monosten A', menlo, monaco, monospace;
 	color: #fff;
 	font-size: 60px;
 	line-height: 1.5;
 	text-transform: uppercase;
 	-webkit-font-smoothing: antialiased;
+}
+
+html[data-browsing].wf-loading #browse {
+	opacity: 0;
 }
 
 /**
@@ -82,9 +86,9 @@ html[data-notracks] #currently {
 	position: absolute;
 	top: 50%;
 	left: 50%;
-	-webkit-transform: translate(-50%, -50%);
-	-moz-transform: translate(-50%, -50%);
-	transform: translate(-50%, -50%);
+	-webkit-transform: translate3d(-50%, -50%, 0);
+	-moz-transform: translate3d(-50%, -50%, 0);
+	transform: translate3d(-50%, -50%, 0);
 }
 
 /**
@@ -204,11 +208,14 @@ html[data-loading] .section {
 }
 
 .section .options {
+	height: 1.5em;
+	overflow: hidden;
 	font-size: 0.5em;
 	position: relative;
 }
 
 .section .currently {
+	height: 1.5em;
 	color: #fff;
 	text-overflow: ellipsis;
 	overflow: hidden;
@@ -230,14 +237,14 @@ html[data-loading] .section {
 }
 
 .section .option_line {
-	background: rgba(255, 255, 255, 0.1);
+	background: #333;
 	position: absolute;
 	left: 0;
 	right: 0;
 	top: 45%;
-	-webkit-transform: translateY(-50%);
+	/*-webkit-transform: translateY(-50%);
 	-moz-transform: translateY(-50%);
-	transform: translateY(-50%);
+	transform: translateY(-50%);*/
 }
 
 #switch {
@@ -254,26 +261,6 @@ html[data-loading] .section {
 @-webkit-keyframes blink {
   0% { color: rgba(255, 255, 255, 0); }
   50% { color: #fff; }
-}
-
-iframe {
-	height: 0px;
-	width: 0px;
-}
-
-#artwork {
-	background-position: center;
-	background-repeat: no-repeat;
-	background-size: cover;
-	position: fixed;
-	top: -15%;
-	left: -15%;
-	right: -15%;
-	bottom: -15%;
-	z-index: -1;
-	opacity: 0.15;
-	-webkit-transform: translate3d(0, 0, 0.9);
-	-webkit-filter: grayscale(100%) blur(30px);
 }
 
 /**
@@ -309,7 +296,7 @@ html[data-notracks] #notracks {
 	opacity: 0;
 	display: none;
 	position: fixed;
-	padding: 10% 5% 10% 66.6%;
+	padding: 10% 5% 9.3% 66.6%;
 	top: 0;
 	overflow: auto;
 	left: 0;
@@ -331,10 +318,19 @@ html[data-browsing] #browse {
 }
 
 #site_title {
-	margin-top: 10%;
+	display: none;
+	margin-bottom: 5%;
 	position: fixed;
-	top: 0;
-	left: 10%;
+	bottom: 0;
+	right: 0.5%;
+	font-size: 0.5em;
+	-webkit-backface-visibility: hidden;
+	-webkit-transform: rotate(-90deg) translate3d( 0, 0, 0);
+	-moz-transform: rotate(-90deg) translate3d( 0, 0, 0);
+	transform: rotate(-90deg) translate3d( 0, 0, 0);
+	-webkit-transform-origin: bottom right;
+	-moz-transform-origin: bottom right;
+	transform-origin: bottom right;
 }
 
 #browse .browse_stream {
@@ -381,15 +377,28 @@ html[data-browsing] #browse {
 
 #browse_search input {
 	border: 0;
-	font-family: 'Monosten-A', monaco, monospace;
+	font-family: 'Monosten A', menlo, monaco, monospace;
 	background: #000;
 	text-transform: uppercase;
 	line-height: 1em;
-	margin: 1em 0;
+	margin: 0.8em 0 1em;
 	color: #fff;
 	outline: 0;
-	padding: 5% 5% 4% 5%;
+	padding: 5% 5% 4.5% 5%;
 	width: 100%;
+}
+
+#browse_search input::-webkit-input-placeholder { /* WebKit browsers */
+    color:    #333;
+}
+#browse_search input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    color:    #333;
+}
+#browse_search input::-moz-placeholder { /* Mozilla Firefox 19+ */
+    color:    #333;
+}
+#browse_search input:-ms-input-placeholder { /* Internet Explorer 10+ */
+    color:    #333;
 }
 
 #browse_close {
@@ -413,4 +422,41 @@ html[data-browsing] #browse {
 
 html[data-streaming] #browse_close {
 	display: block;
+}
+
+#browse_handy {
+	font-size: 0.5em;
+	position: fixed;
+	margin-bottom: 9.5%;
+	bottom: 0;
+	left: 10%;
+	width: 56.6%;
+}
+
+#browse_handy > div {
+	display: inline-block;
+	margin-right: 5%;
+}
+
+.handy_name {
+	display: block;
+}
+
+.handy_short {
+	color: #999;
+}
+
+.handy_bookmarklet {
+	color: #fff;
+	cursor: move;
+	background: #ccc;
+	display: inline-block;
+	text-align: center;
+	width: 100%;
+	border-radius: 1em;
+	text-decoration: none;
+}
+
+.handy_bookmarklet:hover {
+	background: #000;
 }

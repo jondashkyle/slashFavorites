@@ -28,6 +28,9 @@ app.stream = function(options) {
             trackPause   : function() { },
             trackFinish  : function() { },
 
+            // Misc
+            artistFavoritesReady : function() { }
+
         }, options),
 
 		// Data
@@ -192,20 +195,13 @@ app.stream = function(options) {
 
 		openStream : function() {
 
-			// Set the Artist's favorite count
-			SC.get('/users/' + self.data.activeTrack.user.id, function(user) {
-				if ( user.public_favorites_count > 2 ) {
-					self.data.activeTrack.user.public_favorites_count = user.public_favorites_count;
-				}
-			});
-
 			// Open the new stream
 			SC.stream('/tracks/' + self.data.activeTrack.id, {
 				onconnect : function() {
 					$(events).trigger('trackConnect');
 				},
 				onload : function() {
-					$(events).trigger('trackReady');
+					// $(events).trigger('trackReady');
 				},
 				onplay : function() {
 					$(events).trigger('trackPlay');
@@ -222,6 +218,12 @@ app.stream = function(options) {
 			}, function(sound) {
 				self.sound = sound;
 				self.sound.play();
+				SC.get('/users/' + self.data.activeTrack.user.id, function(user) {
+					if ( user.public_favorites_count > 2 ) {
+						self.data.activeTrack.user.public_favorites_count = user.public_favorites_count;
+					}
+					$(events).trigger('trackReady');
+				});
 			});
 
 		},
@@ -279,6 +281,10 @@ app.stream = function(options) {
 
 		noTracks : function() {
 			self.options.noTracks();
+		},
+
+		artistFavoritesReady : function() {
+			self.options.artistFavoritesReady();
 		},
 
 		getRandomFavorite : function() {

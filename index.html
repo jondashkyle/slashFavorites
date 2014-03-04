@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html data-initializing>
+<html data-initializing class="wf-loading">
 <head>
 	<meta charset="UTF-8">
 	<title>/favorites</title>
 
 	<script src="_libraries/jquery.2.1.0.js"></script>
+	<script src="_libraries/jquery.easing.js"></script>
 	<script src="_libraries/vein.js"></script>
 	<script src="_libraries/jquery.cookie.js"></script>
 	<script src="_libraries/soundmanager/script/soundmanager2-jsmin.js"></script>
@@ -62,7 +63,7 @@
 
 			</div>
 
-			<div id="artwork"></div>
+			
 				
 		</div>
 
@@ -95,22 +96,61 @@
 	<div id="browse">
 
 		<div id="site_title">
-			/favorites.0.0000000&frac12;
+			v.0.1
 		</div>
 
 		<div id="browse_close">&times;</div>
 
 		<div id="browse_search">
-			enter a soundcloud username/url
+			enter a soundcloud username/url &darr;
 			<form autocomplete="off">
-				<input id="username" type="text" name="search"  autocomplete="off">
+				<input id="username" type="text" name="search" placeholder="/favorites" autocomplete="off">
 			</form>
-			or select a suggestion from the right
+			or choose a suggestion from the right &rarr;
+		</div>
+
+		<div id="browse_handy">
+			<div>
+				<span class="handy_name">bookmarklet</span>
+				<a href="javascript:(function(){var location=window.location;location=location.toString();if(location.indexOf('soundcloud.com')>0){location=location.replace('http://soundcloud.com/','');location=location.replace('https://soundcloud.com/','');location=location.replace('www.soundcloud.com/','');location=location.replace('soundcloud.com/','');location=location.split('/')[0];if(location=='stream'){alert('Only works on artist pages,not the stream!')}else{window.open('http://localhost:8000/#'+location);}}else{alert('This only functions on Soundcloud artist pages ;)');}})();" class="handy_bookmarklet">/favs</a>
+			</div><div>
+				<span class="handy_name">spacebar</span>
+				<span class="handy_short">play/pause</span>
+			</div><div>
+				<span class="handy_name">r/&rarr;</span>
+				<span class="handy_short">skip</span>
+			</div><div>
+				<span class="handy_name">&uarr;</span>
+				<span class="handy_short">swap stream</span>
+			</div>
 		</div>
 
 		<div id="browse_streams"></div>
 
 	</div>
+
+	<script type="text/javascript">    
+	    // Set the Google Analytics account
+	    var AnalyticsID = 'UA-532347-10'; // change this variable to your site's ID
+
+	    // Nothing below this line should be modified
+	    var _gaq = _gaq || [];
+	    _gaq.push(['_setAccount', AnalyticsID]);
+	    _gaq.push(['_trackPageview']);
+
+	    // Activate the Google page tracking code
+	    (function() {
+	        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	    })();  
+
+    	$(window).hashchange( function() {
+    		var href = document.location;
+            _gaq.push(['_trackPageview', href]);
+        });
+
+	</script>
 
 </body>
 </html>
