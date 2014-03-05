@@ -211,6 +211,8 @@ html[data-loading] .section {
 	height: 1.5em;
 	overflow: hidden;
 	font-size: 0.5em;
+	letter-spacing: 1px;
+	font-family: 'Monosten C', menlo, monaco, monospace;
 	position: relative;
 }
 
@@ -230,6 +232,28 @@ html[data-loading] .section {
 .section .currently a:hover {
 	-moz-animation: blink 150ms steps(1, end) infinite;
 	-webkit-animation: blink 150ms steps(1, end) infinite;
+}
+
+.currently a.swap {
+	background: #fff;
+	border-radius: 1em;
+	border-color: #fff;
+	border-style: solid;
+	color: #000;
+	padding: 0 0.5em;
+}
+
+.section .currently a.swap:hover {
+	-moz-animation: currently 150ms steps(1, end) infinite;
+	-webkit-animation: currently 150ms steps(1, end) infinite;
+}
+
+.static_swap {
+	display: inline;
+	border: 1px solid #fff;
+	border-radius: 1em;
+	color: #fff;
+	padding: 0 0.5em;	
 }
 
 .section .title {
@@ -256,6 +280,33 @@ html[data-loading] .section {
 @-moz-keyframes blink {
   0% { color: rgba(255, 255, 255, 0); }
   50% { color: #fff; }
+}
+ 
+@-webkit-keyframes blink {
+  0% { color: rgba(255, 255, 255, 0); }
+  50% { color: #fff; }
+}
+
+@-moz-keyframes currently {
+  0% {
+  	color: #fff;
+  	background: #000;
+  }
+  50% {
+  	color: #000;
+  	background: #fff;
+  }
+}
+
+@-webkit-keyframes currently {
+  0% {
+  	color: #fff;
+  	background: #000;
+  }
+  50% {
+  	color: #000;
+  	background: #fff;
+  }
 }
  
 @-webkit-keyframes blink {
@@ -364,7 +415,9 @@ html[data-browsing] #browse {
 }
 
 #browse_search {
+	font-family: 'Monosten C', menlo, monaco, monospace;
 	font-size: 0.5em;
+	letter-spacing: 1px;
 	position: fixed;
 	top: 50%;
 	left: 10%;
@@ -425,7 +478,9 @@ html[data-streaming] #browse_close {
 }
 
 #browse_handy {
+	font-family: 'Monosten C', menlo, monaco, monospace;
 	font-size: 0.5em;
+	letter-spacing: 1px;
 	position: fixed;
 	margin-bottom: 9.5%;
 	bottom: 0;
@@ -459,4 +514,19 @@ html[data-streaming] #browse_close {
 
 .handy_bookmarklet:hover {
 	background: #000;
+}
+
+/**
+ * Mobile
+ */
+
+@media (max-width: 500px) { 
+	#stream {
+		bottom: auto;
+		top: 0;
+	}
+	#controls {
+		right: auto;
+		left: 0;
+	}
 }

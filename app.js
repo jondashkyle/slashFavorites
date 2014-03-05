@@ -178,14 +178,14 @@ app.ui = {
 		$('#stream')
 			.addClass('active')
 			.find('.currently')
-			.html('<a href="' + user.permalink_url + '" target="_blank">' + user.username + '</a> (' + user.public_favorites_count +')');
+			.html('<a href="' + user.permalink_url + '" target="_blank">' + user.username + '</a> <div class="static_swap">' + user.public_favorites_count +'</div>');
 	},
 
 	updateTrack : function(track) {	
 
 		var artist_favorites_count = track.user.public_favorites_count;
 
-		$('#artist .currently').html('<a href="' + track.user.permalink_url + '" target="_blank">' + track.user.username + '</a> (<a class="swap" data-swap>0</a>)');
+		$('#artist .currently').html('<a href="' + track.user.permalink_url + '" target="_blank">' + track.user.username + '</a> <a class="swap" data-swap>0</a>');
 		$('#track .currently').html('<a href="' + track.permalink_url + '" target="_blank">' + track.title + '</a>');
 		// $('#artwork image').attr('xlink:href', (track.artwork_url || track.user.avatar_url));
 
@@ -403,8 +403,12 @@ app.resize = {
 
 		vein.inject('.option_line', {
 			'margin-left'   : line * 10 + 'px',
-			'height'        : line + 'px',
-			'border-radius' : line / 2 + 'px'
+			'height'        : line * 2 + 'px',
+			'border-radius' : line + 'px'
+		});
+
+		vein.inject('.static_swap, a.swap', {
+			'border-width' : line * 2 + 'px',
 		});
 
 		vein.inject('#browse_search input', {
