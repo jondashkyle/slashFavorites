@@ -192,6 +192,10 @@ html[data-initializing] #controls {
 	user-select: none;
 }
 
+#artist .artist {
+	margin-bottom: 1em;
+}
+
 /**
  * Sections
  */
@@ -219,14 +223,17 @@ html[data-loading] .section {
 .section .currently {
 	height: 1.5em;
 	color: #fff;
-	text-overflow: ellipsis;
-	overflow: hidden;
 }
 
 .section .currently a {
 	color: #fff;
+	vertical-align: middle;
 	cursor: pointer;
 	text-decoration: none;
+	display: inline-block;
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .section .currently a:hover {
@@ -323,6 +330,8 @@ html[data-loading] .section {
 	position: fixed;
 	top: 50%;
 	left: 50%;
+
+	pointer-events: none;
 
 	-webkit-transition: opacity 500ms ease;
 	-moz-transition: opacity 500ms ease;

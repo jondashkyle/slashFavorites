@@ -1,8 +1,6 @@
 // Namespace
 var app = app || { };
 
-var test;
-
 // Store the streams
 app.streams = [ ];
 
@@ -53,7 +51,7 @@ app.core = {
 			flashVersion: 9, // optional: shiny features (default = 8)
 			preferFlash: true,
 			useHighPerformance : true,
-			debugMode : true,
+			debugMode : false,
 
 			defaultOptions: {
 			    // set global default volume for all sound objects
@@ -144,6 +142,13 @@ app.core = {
 		if( /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) ) {
 		   alert("Not yet mobile optimized. Goodluck.")
 		}
+	},
+
+	fixAltTags : function() {
+		$('body').on('moustenter', 'a', function() {
+			$(this).removeAttr('title');
+			$(this).removeAttr('alt');
+		});
 	}
 
 };
@@ -604,3 +609,20 @@ WebFontConfig = { fontdeck: { id: '16726' } };
 	var s = document.getElementsByTagName('script')[0];
 	s.parentNode.insertBefore(wf, s);
 })();
+
+var ascii = [
+"-----██╗-██████╗-███╗---██╗------██╗--██╗██╗---██╗██╗-----███████╗----██████╗-██████╗-███╗---███╗",
+"-----██║██╔═══██╗████╗--██║------██║-██╔╝╚██╗-██╔╝██║-----██╔════╝---██╔════╝██╔═══██╗████╗-████║",
+"-----██║██║---██║██╔██╗-██║█████╗█████╔╝--╚████╔╝-██║-----█████╗-----██║-----██║---██║██╔████╔██║",
+"██---██║██║---██║██║╚██╗██║╚════╝██╔═██╗---╚██╔╝--██║-----██╔══╝-----██║-----██║---██║██║╚██╔╝██║",
+"╚█████╔╝╚██████╔╝██║-╚████║------██║--██╗---██║---███████╗███████╗██╗╚██████╗╚██████╔╝██║-╚═╝-██║",
+"-╚════╝--╚═════╝-╚═╝--╚═══╝------╚═╝--╚═╝---╚═╝---╚══════╝╚══════╝╚═╝-╚═════╝-╚═════╝-╚═╝-----╚═╝"
+];
+
+$(function() {
+	if ( "console" in window || typeof console !== "undefined") {
+		for (var i=0;i<ascii.length;i++) {
+			console.log(ascii[i]);
+		};
+	}
+});
